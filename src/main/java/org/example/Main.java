@@ -9,6 +9,7 @@ import org.example.model.TaskStatus;
 
 public class Main {
     public static void main(String[] args) {
+        String txt = "не появляется пулл реквест";
         TaskManager manager = Managers.getDefault();
 
         Task task1 = new Task("Найти карту сокровищ", "Обыскать остров", 0, TaskStatus.NEW);
