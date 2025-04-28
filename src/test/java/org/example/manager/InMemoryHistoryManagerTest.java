@@ -4,7 +4,6 @@ import org.example.manager.InMemoryHistoryManager;
 import org.example.model.Task;
 import  org.example.model.TaskStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 public class InMemoryHistoryManagerTest {
 
     @Test
+
     public void shouldAddTasksToHistory() {
         InMemoryHistoryManager copyManager = new InMemoryHistoryManager();
         Task task1 = new Task("Задача 1", "Описание 1", 1, TaskStatus.NEW);
@@ -30,6 +30,7 @@ public class InMemoryHistoryManagerTest {
 
     }
     @Test
+
     public void historyRepeat() {
         InMemoryHistoryManager copyManager = new InMemoryHistoryManager();
 
@@ -42,6 +43,7 @@ public class InMemoryHistoryManagerTest {
         Assertions.assertEquals(story1.getId(), history.get(0).getId(), "В истории должна быть задача story1");
     }
     @Test
+
     public void removeHistory() {
         InMemoryHistoryManager copyManager = new InMemoryHistoryManager();
         Task story1 = new Task("Первая история 1", "Наруто", 1, TaskStatus.NEW);
