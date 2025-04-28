@@ -1,7 +1,5 @@
 package org.example.manager;
 
-import org.example.model.Epic;
-import org.example.model.Subtask;
 import org.example.model.Task;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -12,16 +10,6 @@ class InMemoryTaskManagerTest {
 
     @Test
     void testAddTask() {
-        // Тестовая реализация
-    }
-
-    @Test
-    void testAddEpic() {
-        // Тестовая реализация
-    }
-
-    @Test
-    void testAddSubtask() {
         // Тестовая реализация
     }
 
@@ -42,10 +30,5 @@ class InMemoryTaskManagerTest {
         
         manager.removeTask(task.getId());
         assertNull(manager.getTaskById(task.getId()), "Задача должна быть удалена");
-    }
-
-    @Test
-    void testUpdateEpicStatus() {
-        // Тестовая реализация
     }
 }
