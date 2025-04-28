@@ -17,7 +17,7 @@ class InMemoryTaskManagerTest {
     void testGetHistoryWithEmptyList() {
         TaskManager manager = new InMemoryTaskManager();
         List<Task> history = manager.getHistory();
-        
+
         assertNotNull(history, "История не должна быть null");
         assertTrue(history.isEmpty(), "История должна быть пустой");
     }
@@ -27,7 +27,7 @@ class InMemoryTaskManagerTest {
         TaskManager manager = new InMemoryTaskManager();
         Task task = new Task("Test", "Description");
         manager.addTask(task);
-        
+
         manager.removeTask(task.getId());
         assertNull(manager.getTaskById(task.getId()), "Задача должна быть удалена");
     }
