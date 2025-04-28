@@ -6,20 +6,44 @@ import org.example.model.Subtask;
 import java.util.List;
 
 public interface TaskManager {
-    void addTask(Task task);
-    void addEpic(Epic epic);
-    Subtask addSubtask(Subtask subtask);
+
+    List<Task> getAllTasks();
+
+    List<Epic> getAllEpics();
+
+    List<Subtask> getAllSubtasks();
+
+    void deleteAllTasks();
+
+    void deleteAllEpics();
+
+    void deleteAllSubtasks();
+
+    Task getTaskById(int id);
+
+    Epic getEpicById(int id);
+
+    Subtask getSubtaskById(int id);
+
+    int createTask(Task task);
+
+    int createEpic(Epic epic);
+
+    int createSubtask(Subtask subtask);
+
     void updateTask(Task task);
+
     void updateEpic(Epic epic);
+
     void updateSubtask(Subtask subtask);
-    Task getTask(int id);
-    Epic getEpic(int id);
-    Subtask getSubtask(int id);
-    void removeTask(int id);
-    void removeEpic(int id);
-    void removeSubtask(int id);
-    List<Task> getAllTasks();      // Добавлено
-    List<Epic> getAllEpics();      // Добавлено
-    List<Subtask> getAllSubtasks(); // Добавлено
+
+    void deleteTaskById(int id);
+
+    void deleteEpicById(int id);
+
+    void deleteSubtaskById(int id);
+
+    List<Subtask> getSubtasksByEpicId(int epicId);
+
     List<Task> getHistory();
 }
