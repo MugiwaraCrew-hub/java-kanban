@@ -4,8 +4,11 @@ import org.example.model.Task;
 import org.example.model.Epic;
 import org.example.model.Subtask;
 import org.example.model.TaskStatus;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -72,18 +75,25 @@ public class InMemoryTaskManagerTest {
     @Test
     public void testHistorySaving() {
         TaskManager manager = Managers.getDefault();
-        Task task1 = new Task("Task1", "Description1", 0, TaskStatus.NEW);
-        Task task2 = new Task("Task2", "Description2", 0, TaskStatus.NEW);
+        Task task1 = new Task("Task1", "Description1", 1, TaskStatus.NEW); // Указываем id
+        Task task2 = new Task("Task2", "Description2", 2, TaskStatus.NEW); // Указываем id
+        Task task3 = new Task("Task3","Description3", 3, TaskStatus.NEW); // Указываем id
 
         manager.addTask(task1);
         manager.addTask(task2);
+        manager.addTask(task3);
 
         manager.getTask(task1.getId());
         manager.getTask(task2.getId());
         manager.getTask(task1.getId());
+        manager.getTask(task3.getId());
+        manager.getTask(task2.getId());
 
-        List<Task> history = manager.getHistory();
-        assertEquals(3, history.size(), "История должна содержать все просмотры");
+        List<Task> historyWatch = manager.getHistory();
+        Assertions.assertEquals(3, historyWatch.size(), "Размер истории должен быть 3");
+        Assertions.assertEquals(task1.getId(), historyWatch.get(0).getId(), "Первая в истории - task1");
+        Assertions.assertEquals(task3.getId(), historyWatch.get(1).getId(), "Вторая в истории - task3");
+        Assertions.assertEquals(task2.getId(), historyWatch.get(2).getId(), "Третья в истории - task2");
     }
 
     @Test
@@ -114,5 +124,51 @@ public class InMemoryTaskManagerTest {
         List<Task> history = manager.getHistory();
         Task historyTask = history.get(0);
         assertEquals(task.getTitle(), historyTask.getTitle(), "Название в истории должно совпадать");
+    }
+
+
+    @Test
+    public void removeSubtaskUpdateEpic(){
+        TaskManager manager = Managers.getDefault();
+        Epic epic1 = new Epic("Эпик1","Описани1",0);
+        manager.addEpic(epic1);
+
+        Subtask subtask1 = new Subtask("Первая подзадача","Описание первой подзадачи",0,TaskStatus.NEW, epic1.getId());
+        Subtask addedSubtask1 = manager.addSubtask(subtask1);
+        Subtask subtask2 = new Subtask("Вторая подзадача","Описание второй подзадачи",0,TaskStatus.DONE, epic1.getId());
+        Subtask addedSubtask2 = manager.addSubtask(subtask2);
+
+        manager.removeSubtask(addedSubtask2.getId());
+        Epic updatedEpic =  manager.getEpic(epic1.getId());
+
+        Assertions.assertNull(manager.getSubtask(addedSubtask2.getId()), "Удаленная подзадача не должна существовать");
+        Assertions.assertFalse(updatedEpic.getSubtaskIds().contains(addedSubtask2.getId()), "Id удаленной подзадачи не должно быть в списке эпика");
+        Assertions.assertEquals(TaskStatus.NEW, updatedEpic.getStatus(), "Статус эпика должен быть NEW");
+    }
+    @Test
+        public void checkRemoveEpic(){
+            TaskManager manager = Managers.getDefault();
+            Epic epic1 = new Epic("Эпик1","Описани1",0);
+            manager.addEpic(epic1);
+
+            Subtask subtask1 = new Subtask("Первая подзадача","Описание первой подзадачи",0,TaskStatus.NEW, epic1.getId());
+            Subtask addSubtask1 = manager.addSubtask(subtask1);
+            Subtask subtask2 = new Subtask("Вторая подзадача","Описание второй подзадачи",0,TaskStatus.DONE, epic1.getId());
+            Subtask addSubtask2 = manager.addSubtask(subtask2);
+
+            manager.removeEpic(epic1.getId());
+
+            Assertions.assertNull(manager.getEpic(epic1.getId()), "Эпик должен быть удален");
+            Assertions.assertNull(manager.getSubtask(addSubtask1.getId()), "Первая подзадача должна быть удалена");
+            Assertions.assertNull(manager.getSubtask(addSubtask2.getId()), "Вторая подзадача должна быть удалена");
+        }
+    @Test
+    public void copySetterCheckProblem() {
+        TaskManager manager = Managers.getDefault();
+        Epic epic1 = new Epic("Эпик1","Описани1",0);
+        manager.addEpic(epic1);
+        epic1.setTitle("Описание2");
+        Epic newEpic1 = manager.getEpic(epic1.getId());
+        Assertions.assertNotEquals(epic1.getTitle(), newEpic1.getTitle(), "Название эпика в менеджере НЕ должно измениться");
     }
 }
