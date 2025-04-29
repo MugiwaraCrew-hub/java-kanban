@@ -9,6 +9,7 @@ import org.example.model.TaskStatus;
 
 public class Main {
     public static void main(String[] args) {
+        String message = "я это уже не выдерживаю";
         String txt = "Был блеск и богатство, могущество трона,\n" +
                 "Всемирная слава, хвала и почёт...\n" +
                 "И было кольцо у царя Соломона,\n" +
