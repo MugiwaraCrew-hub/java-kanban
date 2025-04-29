@@ -1,9 +1,10 @@
 package org.example.model;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SubtaskTest {
+public class SubtaskTests {
     @Test
     public void subTaskEqualed() {
         Subtask subtask = new Subtask("SubTask1", "Description1", 1, TaskStatus.NEW, 1);
@@ -16,5 +17,12 @@ public class SubtaskTest {
         Subtask subtask = new Subtask("SubTask1", "Description1", 1, TaskStatus.DONE, 1);
         Subtask subtask1 = new Subtask("SubTask1", "Description2", 2, TaskStatus.DONE, 1);
         assertNotEquals(subtask, subtask1, "Задачи с разными id не должны быть равны");
+    }
+
+    @Test
+    public void subtasksWithDifferentEpicIdsShouldNotBeEqual() {
+        Subtask subtask1 = new Subtask("Subtask", "Desc", 1, TaskStatus.NEW, 1);
+        Subtask subtask2 = new Subtask("Subtask", "Desc", 1, TaskStatus.NEW, 2);
+        assertNotEquals(subtask1, subtask2, "Подзадачи с разными epicId не должны быть равны");
     }
 }

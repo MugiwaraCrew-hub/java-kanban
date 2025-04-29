@@ -15,7 +15,6 @@ public class Task {
         this.status = status;
     }
 
-
     public Task(Task other) {
         this.title = other.title;
         this.description = other.description;

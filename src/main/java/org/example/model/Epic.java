@@ -8,21 +8,19 @@ public class Epic extends Task {
     private final List<Integer> subtaskIds;
 
     public Epic(String title, String description, int id) {
-        super(title, description, id, TaskStatus.NEW); // У эпика начальный статус всегда NEW
+        super(title, description, id, TaskStatus.NEW);
         this.subtaskIds = new ArrayList<>();
     }
 
-    // Конструктор копирования
     public Epic(Epic other) {
-        super(other); // Вызываем конструктор копирования Task
-        this.subtaskIds = new ArrayList<>(other.subtaskIds); // Копируем список subtaskIds
+        super(other);
+        this.subtaskIds = new ArrayList<>(other.subtaskIds);
     }
 
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }
 
-    // Методы для добавления и удаления id подзадач (могут быть уже реализованы)
     public void addSubtaskId(int subtaskId) {
         this.subtaskIds.add(subtaskId);
     }
@@ -31,16 +29,21 @@ public class Epic extends Task {
         this.subtaskIds.remove(Integer.valueOf(subtaskId));
     }
 
+    public void setName(String name) {
+        this.title = name; // Для совместимости с updateEpic
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return id == epic.id;
+        return Objects.equals(subtaskIds, epic.subtaskIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode(), subtaskIds);
     }
 }

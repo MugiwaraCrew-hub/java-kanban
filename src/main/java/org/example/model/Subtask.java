@@ -11,8 +11,8 @@ public class Subtask extends Task {
     }
 
     public Subtask(Subtask other) {
-        super(other); // Вызываем конструктор копирования Task
-        this.epicId = other.epicId; // Копируем epicId
+        super(other);
+        this.epicId = other.epicId;
     }
 
     public int getEpicId() {
@@ -23,12 +23,13 @@ public class Subtask extends Task {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Subtask subtask = (Subtask) o;
-        return id == subtask.id;
+        return epicId == subtask.epicId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode(), epicId);
     }
 }

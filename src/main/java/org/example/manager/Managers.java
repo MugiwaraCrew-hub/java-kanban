@@ -2,7 +2,7 @@ package org.example.manager;
 
 public class Managers {
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager(); // Без параметра, так как конструктор сам берёт historyManager
+        return new InMemoryTaskManager();
     }
 
     public static HistoryManager getDefaultHistory() {
