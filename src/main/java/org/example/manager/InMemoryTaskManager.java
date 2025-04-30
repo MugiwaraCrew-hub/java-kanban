@@ -123,6 +123,12 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask == null || !subtasks.containsKey(subtask.getId())) {
             return;
         }
+
+        Subtask oldSubtask = subtasks.get(subtask.getId());
+        if (oldSubtask.getEpicId() != subtask.getEpicId()) {
+            return; // запрещаем менять epicId при обновлении
+        }
+
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(subtask.getEpicId());
     }
