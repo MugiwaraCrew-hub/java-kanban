@@ -8,12 +8,13 @@ import org.example.model.TaskStatus;
 import java.io.*;
 import java.util.List;
 
+// Класс FileBackedTaskManager
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveData;
     private final InMemoryTaskManager inMemoryTaskManager;
 
     public FileBackedTaskManager(File saveData, InMemoryTaskManager inMemoryTaskManager) {
-        super(inMemoryTaskManager.historyManager); // Use the historyManager from the provided inMemoryTaskManager
+        super(inMemoryTaskManager.historyManager); // Используем HistoryManager из inMemoryTaskManager
         this.saveData = saveData;
         this.inMemoryTaskManager = inMemoryTaskManager;
     }
@@ -45,7 +46,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            reader.readLine();
+            reader.readLine(); // пропускаем заголовок
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length != 6) {
