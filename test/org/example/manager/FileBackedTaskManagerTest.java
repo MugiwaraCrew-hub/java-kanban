@@ -86,3 +86,4 @@ public class FileBackedTaskManagerTest {
         assertEquals(subtask1, loadedTaskManager.getSubtask(subtaskId1), "Загруженная подзадача должна совпадать с исходной");
     }
 }
+// коммит для гита
