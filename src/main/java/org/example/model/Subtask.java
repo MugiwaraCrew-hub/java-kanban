@@ -10,6 +10,11 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(Subtask other) {
+        super(other); // Вызываем конструктор копирования Task
+        this.epicId = other.epicId; // Копируем epicId
+    }
+
     public int getEpicId() {
         return epicId;
     }

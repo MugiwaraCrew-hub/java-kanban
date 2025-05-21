@@ -1,25 +1,53 @@
 package org.example.manager;
 
-import org.example.model.Task;
 import org.example.model.Epic;
 import org.example.model.Subtask;
+import org.example.model.Task;
+
 import java.util.List;
 
 public interface TaskManager {
+    // Методы задач
+    int createTask(Task task);
+
     void addTask(Task task);
-    void addEpic(Epic epic);
-    Subtask addSubtask(Subtask subtask);
-    void updateTask(Task task);
-    void updateEpic(Epic epic);
-    void updateSubtask(Subtask subtask);
+
     Task getTask(int id);
-    Epic getEpic(int id);
-    Subtask getSubtask(int id);
+
+    void updateTask(Task task);
+
     void removeTask(int id);
+
+    List<Task> getAllTasks();
+
+    // Методы эпиков
+    int createEpic(Epic epic);
+
+    void addEpic(Epic epic);
+
+    Epic getEpic(int id);
+
+    void updateEpic(Epic epic);
+
     void removeEpic(int id);
+
+    List<Epic> getAllEpics();
+
+    List<Subtask> getSubtasksByEpicId(int epicId);
+
+    // Методы подзадач
+    int createSubtask(Subtask subtask);
+
+    Subtask addSubtask(Subtask subtask);
+
+    Subtask getSubtask(int id);
+
+    void updateSubtask(Subtask subtask);
+
     void removeSubtask(int id);
-    List<Task> getAllTasks();      // Добавлено
-    List<Epic> getAllEpics();      // Добавлено
-    List<Subtask> getAllSubtasks(); // Добавлено
+
+    List<Subtask> getAllSubtasks();
+
+    // История
     List<Task> getHistory();
 }

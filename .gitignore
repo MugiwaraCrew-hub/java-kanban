@@ -33,3 +33,12 @@ hs_err_pid*
 
 # Maven/Gradle
 target/
+
+# macOS
+.DS_Store
+
+# Maven Wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# Custom
+end
