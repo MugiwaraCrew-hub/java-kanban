@@ -8,31 +8,23 @@ import org.example.model.TaskStatus;
 import java.io.*;
 import java.util.List;
 
-// Класс FileBackedTaskManager
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveData;
-    private final InMemoryTaskManager inMemoryTaskManager;
-
-    public FileBackedTaskManager(File saveData, InMemoryTaskManager inMemoryTaskManager) {
-        super(inMemoryTaskManager.historyManager); // Используем HistoryManager из inMemoryTaskManager
-        this.saveData = saveData;
-        this.inMemoryTaskManager = inMemoryTaskManager;
-    }
 
     public FileBackedTaskManager(File saveData) {
-        this(saveData, new InMemoryTaskManager());
+        this.saveData = saveData;
     }
 
     public void save() {
         try (FileWriter fileWriter = new FileWriter(saveData)) {
             fileWriter.write("id,type,name,status,description,epic\n");
-            for (Task task : inMemoryTaskManager.getAllTasks()) {
+            for (Task task : getAllTasks()) {
                 fileWriter.write(task.getId() + ",TASK," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + ",\n");
             }
-            for (Epic epic : inMemoryTaskManager.getAllEpics()) {
+            for (Epic epic : getAllEpics()) {
                 fileWriter.write(epic.getId() + ",EPIC," + epic.getTitle() + "," + epic.getStatus() + "," + epic.getDescription() + ",\n");
             }
-            for (Subtask subtask : inMemoryTaskManager.getAllSubtasks()) {
+            for (Subtask subtask : getAllSubtasks()) {
                 fileWriter.write(subtask.getId() + ",SUBTASK," + subtask.getTitle() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," + subtask.getEpicId() + "\n");
             }
         } catch (IOException e) {
@@ -41,94 +33,73 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
-        FileBackedTaskManager manager = new FileBackedTaskManager(file, inMemoryTaskManager);
+        FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            reader.readLine(); // пропускаем заголовок
+            String line = reader.readLine(); // пропускаем заголовок
             int maxId = 0;
+
             while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) continue; // пропускаем пустые строки
+                if (line.isBlank()) continue;
 
-                String[] parts = line.split(",", 6); // ограничение, чтобы не разбивать description с запятыми
-                if (parts.length < 6) {
-                    System.out.println("Некорректная строка в файле: " + line);
-                    continue;
-                }
-                int id;
-                try {
-                    id = Integer.parseInt(parts[0]);
-                } catch (NumberFormatException e) {
-                    System.out.println("Некорректный id в строке: " + line);
-                    continue;
-                }
+                String[] parts = line.split(",", 6);
+                if (parts.length < 6) continue;
 
+                int id = Integer.parseInt(parts[0]);
                 String type = parts[1];
                 String name = parts[2];
-                String status = parts[3];
+                TaskStatus status = TaskStatus.valueOf(parts[3]);
                 String description = parts[4];
-                // parts[5] — epicId для сабтасков или пустое для остальных
+                String epicPart = parts[5];
 
-                if (id > maxId) {
-                    maxId = id;
-                }
+                if (id > maxId) maxId = id;
 
                 switch (type) {
                     case "TASK":
-                        Task task = new Task(name, description, id, TaskStatus.valueOf(status));
-                        manager.inMemoryTaskManager.tasks.put(id, task);
+                        Task task = new Task(name, description, id, status);
+                        manager.tasks.put(id, task);
                         break;
                     case "EPIC":
                         Epic epic = new Epic(name, description, id);
-                        epic.setStatus(TaskStatus.valueOf(status));
-                        manager.inMemoryTaskManager.epics.put(id, epic);
+                        epic.setStatus(status);
+                        manager.epics.put(id, epic);
                         break;
                     case "SUBTASK":
-                        int epicId;
-                        try {
-                            epicId = Integer.parseInt(parts[5]);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Некорректный epicId в строке: " + line);
-                            continue;
-                        }
-                        Subtask subtask = new Subtask(name, description, id, TaskStatus.valueOf(status), epicId);
-                        manager.inMemoryTaskManager.subtasks.put(id, subtask);
-                        Epic epicForSub = manager.inMemoryTaskManager.epics.get(epicId);
+                        int epicId = Integer.parseInt(epicPart);
+                        Subtask subtask = new Subtask(name, description, id, status, epicId);
+                        manager.subtasks.put(id, subtask);
+                        Epic epicForSub = manager.epics.get(epicId);
                         if (epicForSub != null) {
                             epicForSub.getSubtaskIds().add(id);
                         }
                         break;
-                    default:
-                        System.out.println("Неизвестный тип задачи: " + type);
                 }
             }
-            // Устанавливаем idCounter в максимальный id
-            manager.inMemoryTaskManager.idCounter = maxId;
+            manager.idCounter = maxId;
 
-            // После загрузки пересчитываем статусы эпиков
-            for (Epic epic : manager.inMemoryTaskManager.getAllEpics()) {
-                manager.inMemoryTaskManager.calculateEpicStatus(epic);
+            for (Epic epic : manager.getAllEpics()) {
+                manager.calculateEpicStatus(epic);
             }
 
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при загрузке данных из файла: " + e.getMessage());
         }
+
         return manager;
     }
 
     @Override
     public List<Task> getAllTasks() {
-        return inMemoryTaskManager.getAllTasks();
+        return super.getAllTasks();
     }
 
     @Override
     public List<Epic> getAllEpics() {
-        return inMemoryTaskManager.getAllEpics();
+        return super.getAllEpics();
     }
 
     @Override
     public List<Subtask> getAllSubtasks() {
-        return inMemoryTaskManager.getAllSubtasks();
+        return super.getAllSubtasks();
     }
 }
