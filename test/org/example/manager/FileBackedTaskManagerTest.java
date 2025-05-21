@@ -70,15 +70,13 @@ public class FileBackedTaskManagerTest {
         // Сохраняем задачи в файл
         fileBackedTaskManager.save();
 
-        // Создаем новый FileBackedTaskManager для загрузки данных из файла
-        FileBackedTaskManager loadedTaskManager = new FileBackedTaskManager(testFile);
+        // Загружаем задачи из файла через статический метод loadFromFile
+        FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
 
-        // Загружаем задачи из файла
         List<Task> loadedTasks = loadedTaskManager.getAllTasks();
         List<Epic> loadedEpics = loadedTaskManager.getAllEpics();
         List<Subtask> loadedSubtasks = loadedTaskManager.getAllSubtasks();
 
-        // Проверяем, что задачи загружены корректно
         assertEquals(1, loadedTasks.size(), "Должна быть загружена 1 задача");
         assertEquals(1, loadedEpics.size(), "Должен быть загружен 1 эпик");
         assertEquals(1, loadedSubtasks.size(), "Должна быть загружена 1 подзадача");
