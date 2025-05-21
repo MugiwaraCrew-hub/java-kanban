@@ -1,6 +1,44 @@
-target/
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs
+hs_err_pid*
+
+# IntelliJ IDEA
 .idea/
 *.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Maven/Gradle
+target/
+
+# macOS
 .DS_Store
+
+# Maven Wrapper
 !.mvn/wrapper/maven-wrapper.jar
+
+# Custom
 end
