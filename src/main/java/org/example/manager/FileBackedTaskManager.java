@@ -47,18 +47,32 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             reader.readLine(); // пропускаем заголовок
+            int maxId = 0;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length != 6) {
+                if (line.isBlank()) continue; // пропускаем пустые строки
+
+                String[] parts = line.split(",", 6); // ограничение, чтобы не разбивать description с запятыми
+                if (parts.length < 6) {
                     System.out.println("Некорректная строка в файле: " + line);
                     continue;
                 }
-                int id = Integer.parseInt(parts[0]);
+                int id;
+                try {
+                    id = Integer.parseInt(parts[0]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Некорректный id в строке: " + line);
+                    continue;
+                }
+
                 String type = parts[1];
                 String name = parts[2];
                 String status = parts[3];
                 String description = parts[4];
-                manager.setIdCounter(id);
+                // parts[5] — epicId для сабтасков или пустое для остальных
+
+                if (id > maxId) {
+                    maxId = id;
+                }
 
                 switch (type) {
                     case "TASK":
@@ -71,26 +85,36 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         manager.inMemoryTaskManager.epics.put(id, epic);
                         break;
                     case "SUBTASK":
-                        int epicId = Integer.parseInt(parts[5]);
+                        int epicId;
+                        try {
+                            epicId = Integer.parseInt(parts[5]);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Некорректный epicId в строке: " + line);
+                            continue;
+                        }
                         Subtask subtask = new Subtask(name, description, id, TaskStatus.valueOf(status), epicId);
                         manager.inMemoryTaskManager.subtasks.put(id, subtask);
                         Epic epicForSub = manager.inMemoryTaskManager.epics.get(epicId);
                         if (epicForSub != null) {
-                            epicForSub.addSubtaskId(id);
+                            epicForSub.getSubtaskIds().add(id);
                         }
                         break;
                     default:
                         System.out.println("Неизвестный тип задачи: " + type);
                 }
             }
+            // Устанавливаем idCounter в максимальный id
+            manager.inMemoryTaskManager.idCounter = maxId;
+
+            // После загрузки пересчитываем статусы эпиков
+            for (Epic epic : manager.inMemoryTaskManager.getAllEpics()) {
+                manager.inMemoryTaskManager.calculateEpicStatus(epic);
+            }
+
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при загрузке данных из файла: " + e.getMessage());
         }
         return manager;
-    }
-
-    private void setIdCounter(int id) {
-        inMemoryTaskManager.idCounter = id;
     }
 
     @Override
