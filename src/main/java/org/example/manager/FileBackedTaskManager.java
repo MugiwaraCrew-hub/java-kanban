@@ -15,7 +15,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saveData = saveData;
     }
 
-    public void save() {
+    // Метод сохранения сделан protected, чтобы не был доступен снаружи
+    protected void save() {
         try (FileWriter fileWriter = new FileWriter(saveData)) {
             fileWriter.write("id,type,name,status,description,epic\n");
             for (Task task : getAllTasks()) {
@@ -70,16 +71,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         manager.subtasks.put(id, subtask);
                         Epic epicForSub = manager.epics.get(epicId);
                         if (epicForSub != null) {
-                            epicForSub.getSubtaskIds().add(id);
+                            epicForSub.addSubtaskId(id); // используем готовый метод
                         }
                         break;
                 }
             }
             manager.idCounter = maxId;
 
-            for (Epic epic : manager.getAllEpics()) {
-                manager.calculateEpicStatus(epic);
-            }
+            // Статусы эпиков уже корректные, повторный расчет не нужен
 
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при загрузке данных из файла: " + e.getMessage());
@@ -88,18 +87,61 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
+    // Переопределяем методы, которые меняют состояние, чтобы сразу сохранять изменения в файл
     @Override
-    public List<Task> getAllTasks() {
-        return super.getAllTasks();
+    public int createTask(Task task) {
+        int id = super.createTask(task);
+        save();
+        return id;
     }
 
     @Override
-    public List<Epic> getAllEpics() {
-        return super.getAllEpics();
+    public void updateTask(Task task) {
+        super.updateTask(task);
+        save();
     }
 
     @Override
-    public List<Subtask> getAllSubtasks() {
-        return super.getAllSubtasks();
+    public void removeTask(int id) {
+        super.removeTask(id);
+        save();
+    }
+
+    @Override
+    public int createEpic(Epic epic) {
+        int id = super.createEpic(epic);
+        save();
+        return id;
+    }
+
+    @Override
+    public void updateEpic(Epic epic) {
+        super.updateEpic(epic);
+        save();
+    }
+
+    @Override
+    public void removeEpic(int id) {
+        super.removeEpic(id);
+        save();
+    }
+
+    @Override
+    public int createSubtask(Subtask subtask) {
+        int id = super.createSubtask(subtask);
+        save();
+        return id;
+    }
+
+    @Override
+    public void updateSubtask(Subtask subtask) {
+        super.updateSubtask(subtask);
+        save();
+    }
+
+    @Override
+    public void removeSubtask(int id) {
+        super.removeSubtask(id);
+        save();
     }
 }
