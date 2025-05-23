@@ -65,6 +65,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void removeAllTasks() {
+        tasks.clear();
+    }
+
+    @Override
     public int createEpic(Epic epic) {
         idCounter++;
         epic.setId(idCounter);
@@ -114,6 +119,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void removeAllEpics() {
+        epics.clear();
+        subtasks.clear();
+    }
+
+    @Override
     public List<Subtask> getSubtasksByEpicId(int epicId) {
         Epic epic = epics.get(epicId);
         if (epic == null) {
@@ -134,7 +145,7 @@ public class InMemoryTaskManager implements TaskManager {
     public int createSubtask(Subtask subtask) {
         Epic epic = epics.get(subtask.getEpicId());
         if (epic == null) {
-            return -1; // ошибка, если эпик не найден
+            return -1;
         }
         idCounter++;
         subtask.setId(idCounter);
@@ -188,6 +199,15 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Subtask> getAllSubtasks() {
         return new ArrayList<>(subtasks.values());
+    }
+
+    @Override
+    public void removeAllSubtasks() {
+        for (Epic epic : epics.values()) {
+            epic.getSubtaskIds().clear();
+            calculateEpicStatus(epic);
+        }
+        subtasks.clear();
     }
 
     @Override

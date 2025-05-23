@@ -46,6 +46,13 @@ public interface TaskManager {
 
     void removeSubtask(int id);
 
+    void removeAllTasks();
+
+    void removeAllEpics();
+
+    void removeAllSubtasks();
+
+
     List<Subtask> getAllSubtasks();
 
     // История

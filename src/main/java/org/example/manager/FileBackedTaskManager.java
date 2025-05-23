@@ -6,6 +6,7 @@ import org.example.model.Task;
 import org.example.model.TaskStatus;
 
 import java.io.*;
+import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveData;
@@ -14,7 +15,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saveData = saveData;
     }
 
-    // Метод сохранения — protected, доступен только в классе и наследниках
     protected void save() {
         try (FileWriter fileWriter = new FileWriter(saveData)) {
             fileWriter.write("id,type,name,status,description,epic\n");
@@ -84,7 +84,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-    // Переопределяем методы, чтобы после изменения сразу сохранять данные
+    // Переопределяем методы для сохранения данных при изменениях
     @Override
     public int createTask(Task task) {
         int id = super.createTask(task);
@@ -101,6 +101,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void removeTask(int id) {
         super.removeTask(id);
+        save();
+    }
+
+    @Override
+    public void removeAllTasks() {
+        super.removeAllTasks();
         save();
     }
 
@@ -124,6 +130,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
+    public void removeAllEpics() {
+        super.removeAllEpics();
+        save();
+    }
+
+    @Override
     public int createSubtask(Subtask subtask) {
         int id = super.createSubtask(subtask);
         save();
@@ -139,6 +151,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void removeSubtask(int id) {
         super.removeSubtask(id);
+        save();
+    }
+
+    @Override
+    public void removeAllSubtasks() {
+        super.removeAllSubtasks();
         save();
     }
 }
