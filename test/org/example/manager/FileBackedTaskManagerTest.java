@@ -24,7 +24,7 @@ public class FileBackedTaskManagerTest {
         // Создаем временный файл для тестирования
         Path tempFile = Files.createTempFile("task_manager_test", ".csv");
         testFile = tempFile.toFile();
-        testFile.deleteOnExit(); // Удаляем файл после завершения теста
+        testFile.deleteOnExit(); // удалим файл после завершения теста
 
         // Инициализируем FileBackedTaskManager с временным файлом
         fileBackedTaskManager = new FileBackedTaskManager(testFile);
@@ -57,7 +57,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void testSaveAndLoadTasks() {
-        // Создаем несколько задач, эпиков и подзадач
+        // Создаем задачи, эпики, подзадачи — сохранение происходит автоматически
         Task task1 = new Task("Task 1", "Description 1", 0, TaskStatus.NEW);
         int taskId1 = fileBackedTaskManager.createTask(task1);
 
@@ -67,10 +67,9 @@ public class FileBackedTaskManagerTest {
         Subtask subtask1 = new Subtask("Subtask 1", "Subtask Description 1", 0, TaskStatus.NEW, epicId1);
         int subtaskId1 = fileBackedTaskManager.createSubtask(subtask1);
 
-        // Сохраняем задачи в файл
-        fileBackedTaskManager.save();
+        // НЕ вызываем save() явно — оно уже вызывается внутри create*
 
-        // Загружаем задачи из файла через статический метод loadFromFile
+        // Загружаем из файла
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
 
         List<Task> loadedTasks = loadedTaskManager.getAllTasks();
