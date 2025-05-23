@@ -14,7 +14,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saveData = saveData;
     }
 
-    // Метод сохранения сделан protected, чтобы не был доступен снаружи
+    // Метод сохранения — protected, доступен только в классе и наследниках
     protected void save() {
         try (FileWriter fileWriter = new FileWriter(saveData)) {
             fileWriter.write("id,type,name,status,description,epic\n");
@@ -70,14 +70,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         manager.subtasks.put(id, subtask);
                         Epic epicForSub = manager.epics.get(epicId);
                         if (epicForSub != null) {
-                            epicForSub.addSubtaskId(id); // используем готовый метод
+                            epicForSub.addSubtaskId(id);
                         }
                         break;
                 }
             }
             manager.idCounter = maxId;
-
-            // Статусы эпиков уже корректные, повторный расчет не нужен
 
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при загрузке данных из файла: " + e.getMessage());
@@ -86,7 +84,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-    // Переопределяем методы, которые меняют состояние, чтобы сразу сохранять изменения в файл
+    // Переопределяем методы, чтобы после изменения сразу сохранять данные
     @Override
     public int createTask(Task task) {
         int id = super.createTask(task);
