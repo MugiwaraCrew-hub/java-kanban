@@ -13,7 +13,7 @@ public class Epic extends Task {
     private Duration duration;
 
     public Epic(String title, String description, int id) {
-        super(title, description, id, TaskStatus.NEW);
+        super(title, description, id, TaskStatus.NEW, Duration.ZERO, null);
         this.subtaskIds = new ArrayList<>();
         this.duration = Duration.ZERO;
         this.startTime = null;
@@ -26,7 +26,7 @@ public class Epic extends Task {
         this.subtaskIds = new ArrayList<>(other.subtaskIds);
         this.startTime = other.startTime;
         this.endTime = other.endTime;
-        this.duration = other.duration;
+        this.duration = other.duration != null ? other.duration : Duration.ZERO;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class Epic extends Task {
     }
 
     public void setDuration(Duration duration) {
-        this.duration = duration;
+        this.duration = duration != null ? duration : Duration.ZERO;
     }
 
     @Override

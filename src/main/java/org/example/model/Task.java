@@ -12,13 +12,20 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
 
-    public Task(String title, String description, int id, TaskStatus status) {
+    // Конструктор с duration и startTime
+    public Task(String title, String description, int id, TaskStatus status,
+                Duration duration, LocalDateTime startTime) {
         this.title = title;
         this.description = description;
         this.id = id;
         this.status = status;
-        this.duration = duration;
+        this.duration = duration != null ? duration : Duration.ZERO;
         this.startTime = startTime;
+    }
+
+    // Перегруженный конструктор без duration и startTime
+    public Task(String title, String description, int id, TaskStatus status) {
+        this(title, description, id, status, Duration.ZERO, null);
     }
 
     // Конструктор копирования
@@ -27,7 +34,7 @@ public class Task {
         this.description = other.description;
         this.id = other.id;
         this.status = other.status;
-        this.duration = other.duration;
+        this.duration = other.duration != null ? other.duration : Duration.ZERO;
         this.startTime = other.startTime;
     }
 
@@ -83,7 +90,7 @@ public class Task {
     }
 
     public void setDuration(Duration duration) {
-        this.duration = duration;
+        this.duration = duration != null ? duration : Duration.ZERO;
     }
 
     @Override
