@@ -10,6 +10,10 @@ public interface TaskManager {
     // Методы задач
     int createTask(Task task);
 
+
+    List<Task> getPrioritizedTasks();
+
+
     void addTask(Task task);
 
     Task getTask(int id);

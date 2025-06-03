@@ -1,5 +1,7 @@
 package org.example.model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,20 +9,41 @@ public class Task {
     protected String description;
     protected int id;
     protected TaskStatus status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
     public Task(String title, String description, int id, TaskStatus status) {
         this.title = title;
         this.description = description;
         this.id = id;
         this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
-
+    // Конструктор копирования
     public Task(Task other) {
         this.title = other.title;
         this.description = other.description;
         this.id = other.id;
         this.status = other.status;
+        this.duration = other.duration;
+        this.startTime = other.startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) {
+            return null;
+        }
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public String getTitle() {
@@ -53,6 +76,14 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
     }
 
     @Override

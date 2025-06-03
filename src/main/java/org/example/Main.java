@@ -7,6 +7,9 @@ import org.example.model.Subtask;
 import org.example.model.Task;
 import org.example.model.TaskStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
     public static void main(String[] args) {
         String message = "я это уже не выдерживаю";
@@ -14,7 +17,11 @@ public class Main {
                 "Всемирная слава, хвала и почёт...\n" +
                 "И было кольцо у царя Соломона,\n" +
                 "На нём была надпись: \"И это пройдёт\".";
+
         TaskManager manager = Managers.getDefault();
+
+        Duration duration = Duration.ofHours(2);
+        LocalDateTime now = LocalDateTime.now();
 
         // Создание задач
         Task task1 = new Task("Найти карту сокровищ", "Обыскать остров", 0, TaskStatus.NEW);

@@ -6,7 +6,7 @@ import org.example.model.Task;
 import org.example.model.TaskStatus;
 
 import java.io.*;
-
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveData;
@@ -19,13 +19,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (FileWriter fileWriter = new FileWriter(saveData)) {
             fileWriter.write("id,type,name,status,description,epic\n");
             for (Task task : getAllTasks()) {
-                fileWriter.write(task.getId() + ",TASK," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + ",\n");
+                fileWriter.write(task.getId() + ",TASK," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + "," + task.getDuration().toMinutes() + "," + task.getStartTime() + ",\n");
             }
             for (Epic epic : getAllEpics()) {
                 fileWriter.write(epic.getId() + ",EPIC," + epic.getTitle() + "," + epic.getStatus() + "," + epic.getDescription() + ",\n");
             }
             for (Subtask subtask : getAllSubtasks()) {
-                fileWriter.write(subtask.getId() + ",SUBTASK," + subtask.getTitle() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," + subtask.getEpicId() + "\n");
+                fileWriter.write(subtask.getId() + ",SUBTASK," + subtask.getTitle() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," + subtask.getEpicId() + "," + subtask.getDuration().toMinutes() + "," + subtask.getStartTime()
+                        + "\n");
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при сохранении данных: " + e.getMessage());
@@ -34,57 +35,67 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        int maxId = 0;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line = reader.readLine(); // пропускаем заголовок
-            int maxId = 0;
-
+            String header = reader.readLine(); // Пропускаем заголовок
+            String line;
             while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) continue;
-
-                String[] parts = line.split(",", 6);
-                if (parts.length < 6) continue;
-
+                if (line.isBlank()) {
+                    continue;
+                }
+                String[] parts = line.split(",");
+                if (parts.length < 3) {
+                    continue;
+                }
                 int id = Integer.parseInt(parts[0]);
                 String type = parts[1];
                 String name = parts[2];
                 TaskStatus status = TaskStatus.valueOf(parts[3]);
                 String description = parts[4];
-                String epicPart = parts[5];
 
-                if (id > maxId) maxId = id;
+                if (id > maxId) {
+                    maxId = id;
+                }
 
                 switch (type) {
                     case "TASK":
-                        Task task = new Task(name, description, id, status);
-                        manager.tasks.put(id, task);
+                        if (parts.length == 7) {
+                            long durationMinutes = Long.parseLong(parts[5]);
+                            LocalDateTime startTime = LocalDateTime.parse(parts[6]);
+                            Task task = new Task(name, description, id, status);
+                            manager.tasks.put(id, task);
+                        }
                         break;
                     case "EPIC":
-                        Epic epic = new Epic(name, description, id);
-                        epic.setStatus(status);
-                        manager.epics.put(id, epic);
+                        if (parts.length == 5) {
+                            Epic epic = new Epic(name, description, id);
+                            epic.setStatus(status);
+                            manager.epics.put(id, epic);
+                        }
                         break;
                     case "SUBTASK":
-                        int epicId = Integer.parseInt(epicPart);
-                        Subtask subtask = new Subtask(name, description, id, status, epicId);
-                        manager.subtasks.put(id, subtask);
-                        Epic epicForSub = manager.epics.get(epicId);
-                        if (epicForSub != null) {
-                            epicForSub.addSubtaskId(id);
+                        if (parts.length == 8) {
+                            int epicId = Integer.parseInt(parts[5]);
+                            long durationMinutes = Long.parseLong(parts[6]);
+                            LocalDateTime startTime = LocalDateTime.parse(parts[7]);
+                            Subtask subtask = new Subtask(name, description, id, status, epicId);
+                            manager.subtasks.put(id, subtask);
+                            Epic epicForSub = manager.epics.get(epicId);
+                            if (epicForSub != null) {
+                                epicForSub.addSubtaskId(id);
+                            }
                         }
                         break;
                 }
             }
-            manager.idCounter = maxId;
-
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при загрузке данных из файла: " + e.getMessage());
         }
-
+        manager.idCounter = maxId;
         return manager;
     }
 
-    // Переопределяем методы для сохранения данных при изменениях
     @Override
     public int createTask(Task task) {
         int id = super.createTask(task);
