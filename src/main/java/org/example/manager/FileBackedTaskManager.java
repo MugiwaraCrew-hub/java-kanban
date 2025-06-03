@@ -6,6 +6,7 @@ import org.example.model.Task;
 import org.example.model.TaskStatus;
 
 import java.io.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -17,16 +18,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (FileWriter fileWriter = new FileWriter(saveData)) {
-            fileWriter.write("id,type,name,status,description,epic\n");
+            fileWriter.write("id,type,name,status,description,duration,startTime,epic\n");
             for (Task task : getAllTasks()) {
-                fileWriter.write(task.getId() + ",TASK," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + "," + task.getDuration().toMinutes() + "," + task.getStartTime() + ",\n");
+                fileWriter.write(task.getId() + ",TASK," + task.getTitle() + "," + task.getStatus() + "," +
+                        task.getDescription() + "," + (task.getDuration() != null ? task.getDuration().toMinutes() : "null") + "," +
+                        (task.getStartTime() != null ? task.getStartTime() : "null") + ",\n");
             }
             for (Epic epic : getAllEpics()) {
-                fileWriter.write(epic.getId() + ",EPIC," + epic.getTitle() + "," + epic.getStatus() + "," + epic.getDescription() + ",\n");
+                fileWriter.write(epic.getId() + ",EPIC," + epic.getTitle() + "," + epic.getStatus() + "," +
+                        epic.getDescription() + ",null,null,\n");
             }
             for (Subtask subtask : getAllSubtasks()) {
-                fileWriter.write(subtask.getId() + ",SUBTASK," + subtask.getTitle() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," + subtask.getEpicId() + "," + subtask.getDuration().toMinutes() + "," + subtask.getStartTime()
-                        + "\n");
+                fileWriter.write(subtask.getId() + ",SUBTASK," + subtask.getTitle() + "," + subtask.getStatus() + "," +
+                        subtask.getDescription() + "," + (subtask.getDuration() != null ? subtask.getDuration().toMinutes() : "null") + "," +
+                        (subtask.getStartTime() != null ? subtask.getStartTime() : "null") + "," + subtask.getEpicId() + "\n");
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при сохранении данных: " + e.getMessage());
@@ -44,7 +49,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isBlank()) {
                     continue;
                 }
-                String[] parts = line.split(",");
+                String[] parts = line.split(",", -1); // -1 чтобы не отбрасывать пустые поля
                 if (parts.length < 3) {
                     continue;
                 }
@@ -60,26 +65,40 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 switch (type) {
                     case "TASK":
-                        if (parts.length == 7) {
-                            long durationMinutes = Long.parseLong(parts[5]);
-                            LocalDateTime startTime = LocalDateTime.parse(parts[6]);
+                        if (parts.length >= 7) {
+                            String durationStr = parts[5];
+                            String startTimeStr = parts[6];
+                            Duration duration = (durationStr == null || durationStr.equals("null") || durationStr.isEmpty())
+                                    ? null
+                                    : Duration.ofMinutes(Long.parseLong(durationStr));
+                            LocalDateTime startTime = (startTimeStr == null || startTimeStr.equals("null") || startTimeStr.isEmpty())
+                                    ? null
+                                    : LocalDateTime.parse(startTimeStr);
                             Task task = new Task(name, description, id, status);
+                            task.setDuration(duration);
+                            task.setStartTime(startTime);
                             manager.tasks.put(id, task);
                         }
                         break;
                     case "EPIC":
-                        if (parts.length == 5) {
-                            Epic epic = new Epic(name, description, id);
-                            epic.setStatus(status);
-                            manager.epics.put(id, epic);
-                        }
+                        Epic epic = new Epic(name, description, id);
+                        epic.setStatus(status);
+                        manager.epics.put(id, epic);
                         break;
                     case "SUBTASK":
-                        if (parts.length == 8) {
-                            int epicId = Integer.parseInt(parts[5]);
-                            long durationMinutes = Long.parseLong(parts[6]);
-                            LocalDateTime startTime = LocalDateTime.parse(parts[7]);
+                        if (parts.length >= 8) {
+                            String durationStr = parts[5];
+                            String startTimeStr = parts[6];
+                            int epicId = Integer.parseInt(parts[7]);
+                            Duration duration = (durationStr == null || durationStr.equals("null") || durationStr.isEmpty())
+                                    ? null
+                                    : Duration.ofMinutes(Long.parseLong(durationStr));
+                            LocalDateTime startTime = (startTimeStr == null || startTimeStr.equals("null") || startTimeStr.isEmpty())
+                                    ? null
+                                    : LocalDateTime.parse(startTimeStr);
                             Subtask subtask = new Subtask(name, description, id, status, epicId);
+                            subtask.setDuration(duration);
+                            subtask.setStartTime(startTime);
                             manager.subtasks.put(id, subtask);
                             Epic epicForSub = manager.epics.get(epicId);
                             if (epicForSub != null) {
