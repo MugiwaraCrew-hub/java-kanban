@@ -89,6 +89,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean hasIntersection(Task newTask) {
+        if (newTask.getStartTime() == null) {
+            return false; // задачи без времени начала не пересекаются
+        }
         List<Task> allTasks = getPrioritizedTasks();
         for (Task task : allTasks) {
             if (task.getId() == newTask.getId()) continue; // не сравнивать с самим собой
@@ -175,7 +178,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (existing == null) return;
         existing.setTitle(epic.getTitle());
         existing.setDescription(epic.getDescription());
-        updateEpicStatusAndTimes(existing);
+        // Убираем вызов updateEpicStatusAndTimes, так как подзадачи не меняются
     }
 
     @Override
@@ -227,7 +230,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask addSubtask(Subtask subtask) {
-        return getSubtask(createSubtask(subtask));
+        createSubtask(subtask);
+        return subtask; // возвращаем без лишнего getSubtask() вызова
     }
 
     @Override
@@ -280,8 +284,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-
-
     @Override
     public List<Task> getPrioritizedTasks() {
         Comparator<Task> comparator = Comparator
@@ -293,30 +295,4 @@ public class InMemoryTaskManager implements TaskManager {
         prioritizedTasks.addAll(subtasks.values());
         return new ArrayList<>(prioritizedTasks);
     }
-
-    public boolean isTasksIntersect(Task task1, Task task2) {
-        if (task1.getStartTime() == null || task2.getStartTime() == null) {
-            return false;
-        }
-        LocalDateTime start1 = task1.getStartTime();
-        LocalDateTime end1 = task1.getEndTime();
-        LocalDateTime start2 = task2.getStartTime();
-        LocalDateTime end2 = task2.getEndTime();
-
-
-        return !end1.isBefore(start2) && !end2.isBefore(start1);
-    }
-
-    public boolean isTaskIntersectWithOthers(Task task) {
-        return getPrioritizedTasks().stream()
-                .anyMatch(otherTask -> otherTask.getId() != task.getId() && isTasksIntersect(task, otherTask));
-    }
-
-
-
-
-
-
-
-
 }
