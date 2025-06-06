@@ -70,7 +70,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         epic.setDuration(getEpicDuration(epic));
         epic.setStartTime(getEpicStartTime(epic).orElse(null));
-        epic.setEndTime(getEpicEndTime(epic).orElse(null));
+        // Удалён вызов epic.setEndTime(...) — такого метода нет
     }
 
     // ======= Проверка пересечения =======
@@ -178,7 +178,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (existing == null) return;
         existing.setTitle(epic.getTitle());
         existing.setDescription(epic.getDescription());
-        // Убираем вызов updateEpicStatusAndTimes, так как подзадачи не меняются
+        // Не обновляем статус и время здесь, т.к. подзадачи не менялись
     }
 
     @Override
@@ -231,7 +231,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask addSubtask(Subtask subtask) {
         createSubtask(subtask);
-        return subtask; // возвращаем без лишнего getSubtask() вызова
+        return subtask;
     }
 
     @Override
@@ -289,10 +289,11 @@ public class InMemoryTaskManager implements TaskManager {
         Comparator<Task> comparator = Comparator
                 .comparing(Task::getStartTime, Comparator.nullsLast(LocalDateTime::compareTo))
                 .thenComparing(Task::getId);
-
-        TreeSet<Task> prioritizedTasks = new TreeSet<>(comparator);
-        prioritizedTasks.addAll(tasks.values());
-        prioritizedTasks.addAll(subtasks.values());
-        return new ArrayList<>(prioritizedTasks);
+        List<Task> allTasks = new ArrayList<>();
+        allTasks.addAll(tasks.values());
+        allTasks.addAll(subtasks.values());
+        allTasks.addAll(epics.values());
+        allTasks.sort(comparator);
+        return allTasks;
     }
 }
