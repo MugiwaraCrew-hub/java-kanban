@@ -70,34 +70,30 @@ public class InMemoryTaskManager implements TaskManager {
 
         epic.setDuration(getEpicDuration(epic));
         epic.setStartTime(getEpicStartTime(epic).orElse(null));
-        // Удалён вызов epic.setEndTime(...) — такого метода нет
+        epic.setEndTime(getEpicEndTime(epic).orElse(null)); // ✅ ВОЗВРАЩЕНО
     }
 
     // ======= Проверка пересечения =======
 
     private boolean isIntersect(Task t1, Task t2) {
-        if (t1.getStartTime() == null || t2.getStartTime() == null) {
-            return false; // задачи без времени начала не пересекаются
-        }
+        if (t1.getStartTime() == null || t2.getStartTime() == null) return false;
+
         LocalDateTime start1 = t1.getStartTime();
         LocalDateTime end1 = t1.getEndTime();
         LocalDateTime start2 = t2.getStartTime();
         LocalDateTime end2 = t2.getEndTime();
 
-        // Проверка по методу наложения отрезков
-        return !(end1.isEqual(start2) || end1.isBefore(start2) || start1.isEqual(end2) || start1.isAfter(end2));
+        return !(end1.isEqual(start2) || end1.isBefore(start2) ||
+                start1.isEqual(end2) || start1.isAfter(end2));
     }
 
     private boolean hasIntersection(Task newTask) {
-        if (newTask.getStartTime() == null) {
-            return false; // задачи без времени начала не пересекаются
-        }
+        if (newTask.getStartTime() == null) return false;
+
         List<Task> allTasks = getPrioritizedTasks();
         for (Task task : allTasks) {
-            if (task.getId() == newTask.getId()) continue; // не сравнивать с самим собой
-            if (isIntersect(task, newTask)) {
-                return true;
-            }
+            if (task.getId() == newTask.getId()) continue;
+            if (isIntersect(task, newTask)) return true;
         }
         return false;
     }
@@ -178,7 +174,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (existing == null) return;
         existing.setTitle(epic.getTitle());
         existing.setDescription(epic.getDescription());
-        // Не обновляем статус и время здесь, т.к. подзадачи не менялись
+        // Подзадачи не трогаем
     }
 
     @Override
@@ -292,7 +288,7 @@ public class InMemoryTaskManager implements TaskManager {
         List<Task> allTasks = new ArrayList<>();
         allTasks.addAll(tasks.values());
         allTasks.addAll(subtasks.values());
-        allTasks.addAll(epics.values());
+        // allTasks.addAll(epics.values());
         allTasks.sort(comparator);
         return allTasks;
     }
