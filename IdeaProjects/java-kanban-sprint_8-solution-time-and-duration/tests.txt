@@ -1,0 +1,5 @@
+./test/org/example/manager/InMemoryHistoryManagerTest.java
+./test/org/example/manager/InMemoryTaskManagerTest.java
+./test/org/example/model/SubtaskTest.java
+./test/org/example/model/TaskTest.java
+./test/org/example/model/TestEpic.java
