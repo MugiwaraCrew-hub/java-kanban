@@ -30,7 +30,7 @@ jobs:
         run: |
           find ./src -type f -name "*.java" > sources.txt
           while read FILE; do
-            if [ -f "$FILE" ];  then
+            if [ -f "$FILE" ]; then
               echo Check: $FILE
               java -jar ./tests/lib/checkstyle-10.13.0-all.jar -c ./tests/checkstyle.xml $FILE
             fi
@@ -43,11 +43,8 @@ jobs:
 
       - name: Build tests
         run: |
-          # Исправлено: тесты Яндекс.Практикума находятся в папке 'tests',
-          # а внутри нее - в 'test'. Поэтому путь './tests/test'
-          find ./tests/test -type f -name "*.java" > tests.txt
-          # Исправлено: путь к тестам в classpath также должен быть './tests/test'
-          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/gson-2.10.1.jar:./tests/test @tests.txt
+          find ./tests -type f -name "*.java" > tests.txt
+          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/gson-2.10.1.jar:./tests @tests.txt
 
       - name: Run tests
         run: |
