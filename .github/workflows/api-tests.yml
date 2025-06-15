@@ -43,12 +43,12 @@ jobs:
 
       - name: Build tests
         run: |
-          # Исправлено: тесты Яндекс.Практикума находятся в папке 'tests',
-          # а внутри нее - в 'test'. Поэтому путь './tests/test'
-          find ./tests/test -type f -name "*.java" > tests.txt
-          # Исправлено: путь к тестам в classpath также должен быть './tests/test'
-          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/gson-2.10.1.jar:./tests/test @tests.txt
+          # Исправлено: тесты находятся в папке tests/src
+          find ./tests/src -type f -name "*.java" > tests.txt
+          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/gson-2.10.1.jar @tests.txt
 
       - name: Run tests
         run: |
-          java -jar ./tests/lib/junit-platform-console-standalone-1.9.3.jar --class-path ./tests/lib/gson-2.10.1.jar:./out --scan-class-path
+          java -jar ./tests/lib/junit-platform-console-standalone-1.9.3.jar \
+            --class-path ./tests/lib/gson-2.10.1.jar:./out \
+            --scan-class-path
